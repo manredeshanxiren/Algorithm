@@ -14,31 +14,33 @@ void solve() {
     cin >> n;
 
     vector<int> a(n + 1);
-    unordered_map<int, int> all(n + 1);
+    vector<int> freq(n + 1, 0);
     vector<int> distinct(n + 1, 0);
 
     for(int i = 1; i <= n; ++i) {
         cin >> a[i];
-        all[a[i]] ++;
+        freq[a[i]] ++;
 
-        if(all[a[i]] == 1) distinct[i] = 1;
+        if(freq[a[i]] == 1) distinct[i] = 1;
 
         distinct[i] += distinct[i - 1];
     }
     
-    all.clear();
+    fill(freq.begin(), freq.end(), 0);
 
     int res = 0;
     int end = n;
     int total = 0;
 
     for(int i = n; i >= 1; --i) {
-        all[a[i]] ++;
-        if(all[a[i]] == 1) total ++;
+        freq[a[i]] ++;
+        if(freq[a[i]] == 1) total ++;
 
         if(total == distinct[end]) {
             res ++;
-            all.clear();
+            for(int j = i; j <= end; ++j) {
+                freq[a[j]] = 0;
+            }
             end = i - 1;
             total = 0;
         }
