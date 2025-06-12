@@ -1,6 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <set>
 
 using namespace std;
 
@@ -12,8 +13,9 @@ void solve() {
     int n;
     cin >> n;
 
-    vector<int> a;
-    vector<int> b;
+    vector<int> a(n + 1);
+    vector<int> b(n + 1);
+    vector<bool> seen(n + 1, false);
 
     for(int i = 1; i <= n; ++i) {
         cin >> a[i];
@@ -23,26 +25,22 @@ void solve() {
         cin >> b[i];
     }
 
-    int r = 0;
-    int lowr = 0;
-    for(int i = 1; i < n; ++i) {
-        if(a[i] == a[i + 1]) r = i;
-        else if(b[i] == b[i + 1]) r = i;
+    if(a[n] == b[n]) {
+        cout << n << endl;
+        return ;
     }
 
-    for(int i = 0; i < n; ++i) {
-        
-    }
-
-    //操作
-    int del = 0;
-    
-    //检验
     int res = 0;
 
-    for(int i = 1; i <= n - del; ++i) {
-        if(a[i] == b[i]) res ++;
+    for(int i = n - 1; i >= 1; --i) {
+        if(a[i] == b[i] || a[i] == a[i + 1] || b[i] == b[i + 1] || seen[a[i]] || seen[b[i]]) {
+            res = i;
+            break;
+        }
+
+        seen[a[i + 1]] = seen[b[i + 1]] = true;
     }
+
 
     cout << res << endl;
 }
