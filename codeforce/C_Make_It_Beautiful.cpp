@@ -2,13 +2,13 @@
 using namespace std;
 using ll = long long;
 
-int main() {
+int main(){
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
     int T;
     cin >> T;
-    while (T--) {
+    while (T--){
         int n;
         ll k;
         cin >> n >> k;
@@ -17,34 +17,36 @@ int main() {
             cin >> a[i];
         }
 
-        // 1. 计算初始美丽值 S0
+        // 1) 计算初始美丽值 S0
         ll S0 = 0;
-        vector<ll> cost(n);
-        for (int i = 0; i < n; i++) {
-            // popcount of a[i]
-            S0 += __builtin_popcountll(a[i]);
-            // 第一件的花费：偶数 -> 1，奇数 -> 2
-            cost[i] = (a[i] % 2 == 0 ? 1 : 2);
+        for (ll x : a) {
+            S0 += __builtin_popcountll(x);
         }
 
-        // 2. 排序 cost，计算前缀和
-        sort(cost.begin(), cost.end());
-        vector<ll> pref(n+1, 0);
-        for (int i = 1; i <= n; i++) {
-            pref[i] = pref[i-1] + cost[i-1];
+        // 2) 统计每一位上有多少个 0
+        //    我们考虑从最低位 b=0 开始，一直到 1<<b 超过原始 k 为止
+        vector<ll> cnt(63, 0);
+        for (ll x : a) {
+            for (int b = 0; b < 63; b++) {
+                if (((x >> b) & 1) == 0) {
+                    cnt[b]++;
+                }
+            }
         }
 
-        // 3. 枚举取前 j 件“首件增益”，剩余预算买“后续件”
-        ll maxGain = 0;
-        for (int j = 0; j <= n; j++) {
-            if (pref[j] > k) break;
-            ll rem = k - pref[j];
-            ll extra = rem / 2;  // 每 2 次操作额外 +1 美丽
-            maxGain = max(maxGain, (ll)j + extra);
+        // 3) 贪心地、按位从低到高尝试“花费 2^b”把该位上的若干 0 变成 1
+        ll gain = 0;
+        for (int b = 0; b < 63; b++) {
+            ll cost = (1LL << b);
+            if (cost > k) break;
+            // 最多能在这一位翻 cnt[b] 次 0->1，每次耗费 cost
+            ll take = min(cnt[b], k / cost);
+            gain += take;
+            k -= take * cost;
         }
 
-        // 4. 输出答案
-        cout << (S0 + maxGain) << "\n";
+        // 4) 答案 = 初始美丽 + 贪心增益
+        cout << (S0 + gain) << "\n";
     }
 
     return 0;
